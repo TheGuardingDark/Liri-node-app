@@ -8,13 +8,13 @@ var inquirer = require("inquirer");
 
 // var spotify = new Spotify(keys.spotify);
 
-
+// var mainMenu = function() {
 
 inquirer.prompt([
     {
         type: "list",
         message: "What would you like to do?",
-        choices: ["concert-this", "spotify-this", "movieThis", "do it"],
+        choices: ["concert-this", "spotify-this", "movie-this", "do it"],
         name: "action"
     }
 ]).then(answer => {
@@ -27,7 +27,8 @@ switch(answer.action) {
                 name: "band",
             }
         ]).then(answer => {
-        return concertThis(answer.band);
+            concertThis(answer.band);
+                //  mainMenu();
         });
         break;
     case "spotify-this":
@@ -40,14 +41,16 @@ switch(answer.action) {
             return spotifyThis(answer.song);
         });
         break;
-    case "movieThis":
+    case "movie-this":
         inquirer.prompt([
             {
                 message: "What movie would you like to look up?",
                 name: "movie",
             }
         ]).then(answer => {
-            return movieThis(answer.movie);
+
+            movieThis(answer.movie);
+                // mainMenu();
         });
         break;
     case "do it":
@@ -55,6 +58,11 @@ switch(answer.action) {
         return justDoIt(); 
 }
 });
+// };
+
+
+// mainMenu();
+
 
 
 function concertThis(band) {
@@ -75,7 +83,32 @@ function spotifyThis(song) {
 };
 
 function movieThis(movie) {
+    // var movieName = movie.splice(2).join("+");
+    var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
+    
+    axios.get(queryUrl).then(
+        function(response) {
+            // console.log(response.data);
+            var film = response.data;
 
+            console.log(`\nTitle: ${film.Title}\nRelease Year: ${film.Year}\nRated: ${film.Rated}\nCountry: ${film.Country}\nLanguage: ${film.Language}\nPlot: ${film.Plot}\nActors: ${film.Actors}\nIMDB Rating: ${film.Ratings[0].Value}\nRotten Tomatoes Rating: ${film.Ratings[1].Value}`);
+            
+        })
+        .catch(function(error) {
+            if(error.response) {
+                console.log("---------------Data---------------");
+                console.log(error.response.data);
+                console.log("---------------Status---------------");
+                console.log(error.response.status);
+                console.log("---------------Status---------------");
+                console.log(error.response.headers);
+            } else if (error.request) {
+                console.log(error.request);
+            } else {
+                console.log("Error", error.message);
+            }
+            console.log(error.config);
+        });
 };
 
 function justDoIt() {
