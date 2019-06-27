@@ -36,6 +36,7 @@ switch(answer.action) {
             {
                 message: "What song would you like to spotify?",
                 name: "song",
+                default: "The Sign",
             }
         ]).then(answer => {
             return spotifyThis(answer.song);
@@ -46,11 +47,12 @@ switch(answer.action) {
             {
                 message: "What movie would you like to look up?",
                 name: "movie",
+                default: "Mr. Nobody",
             }
         ]).then(answer => {
-
-            movieThis(answer.movie);
+                 movieThis(answer.movie);
                 // mainMenu();
+            
         });
         break;
     case "do it":
@@ -83,12 +85,10 @@ function spotifyThis(song) {
 };
 
 function movieThis(movie) {
-    // var movieName = movie.splice(2).join("+");
     var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
     
     axios.get(queryUrl).then(
         function(response) {
-            // console.log(response.data);
             var film = response.data;
 
             console.log(`\nTitle: ${film.Title}\nRelease Year: ${film.Year}\nRated: ${film.Rated}\nCountry: ${film.Country}\nLanguage: ${film.Language}\nPlot: ${film.Plot}\nActors: ${film.Actors}\nIMDB Rating: ${film.Ratings[0].Value}\nRotten Tomatoes Rating: ${film.Ratings[1].Value}`);
@@ -117,18 +117,25 @@ function justDoIt() {
 
     
 
+// Artist(s)
 
+// * The song's name
+
+// * A preview link of the song from Spotify
+
+// * The album that the song is from
 
 
 
     
 
 
-`concert-this`
 
-   * `spotify-this-song`
 
-   * `movie-this`
 
-   * `do-what-it-says`
-
+// look into using this to run multiple prompts like reset and main menu
+//    function doSomething(answers){
+//     // Do whateva you want!
+//   }
+//   var questions = [];
+//   inquirer.prompt(questions, doSomething);
