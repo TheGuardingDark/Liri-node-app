@@ -1,12 +1,15 @@
 
-// require("dotenv").config();
+require("dotenv").config();
+var fs = require("fs");
 var keys = require("./keys.js");
 var moment = require("moment");
 var axios = require("axios");
-
+var Spotify = require('node-spotify-api');
 var inquirer = require("inquirer");
 
-// var spotify = new Spotify(keys.spotify);
+var spotify = new Spotify(keys.spotify);
+
+var divider = "\n====================================================\n";
 
 // var mainMenu = function() {
 
@@ -77,10 +80,39 @@ function concertThis(band) {
                 let location = item.venue.city + ", " + item.venue.country;
                 let date = moment(item.datetime).format("MM/DD/YYYY");
                 console.log(`Venue Name: ${venue}\nLocation: ${location}\nDate: ${date}\n`);
+
+                fs.appendFile("log.txt", venue +"\n"+ location +"\n"+ date +"\n" + divider, function(err) {
+                    if(err) throw err;
+                })
             }) 
         })};
 
 function spotifyThis(song) {
+
+    spotify.search({ type: 'track', query: song}, function(err, data) {
+        if (err) {
+          return console.log('Error occurred: ' + err);  
+        }
+      
+        data.tracks.items.forEach(function(track) {
+         
+      
+          var songData = [
+            "\nSong Name: " + track.name,
+            "Album: " + track.album.name,
+            "Artist: " + track.artists[0].name,
+            "Spotify Link: " + track.external_urls.spotify,
+            ].join("\n\n");
+        
+      
+          console.log(songData);
+      
+          fs.appendFile("log.txt", songData + divider, function(err) {
+            if(err) throw err;
+        })
+      });
+      });
+      
 
 };
 
@@ -91,8 +123,23 @@ function movieThis(movie) {
         function(response) {
             var film = response.data;
 
-            console.log(`\nTitle: ${film.Title}\nRelease Year: ${film.Year}\nRated: ${film.Rated}\nCountry: ${film.Country}\nLanguage: ${film.Language}\nPlot: ${film.Plot}\nActors: ${film.Actors}\nIMDB Rating: ${film.Ratings[0].Value}\nRotten Tomatoes Rating: ${film.Ratings[1].Value}`);
+            var filmData = [
+                "\nTitle: " + film.Title,
+                "Release Year: " + film.Year,
+                "Rated: " + film.Rated,
+                "Country: " + film.Country,
+                "Language: " + film.Language,
+                "Actors: " + film.Actors,
+                "IMDB Rating: " + film.Ratings[0].Value,
+                "Rotten Tomatoes Rating: " + film.Ratings[1].Value,
+            ].join("\n\n");
+
+            console.log(filmData);
             
+            fs.appendFile("log.txt", filmData + divider, function(err) {
+                if(err) throw err;
+            });
+
         })
         .catch(function(error) {
             if(error.response) {
@@ -117,13 +164,7 @@ function justDoIt() {
 
     
 
-// Artist(s)
 
-// * The song's name
-
-// * A preview link of the song from Spotify
-
-// * The album that the song is from
 
 
 
