@@ -1,4 +1,4 @@
-
+// all required packages and files
 require("dotenv").config();
 var fs = require("fs");
 var keys = require("./keys.js");
@@ -7,17 +7,23 @@ var axios = require("axios");
 var Spotify = require('node-spotify-api');
 var inquirer = require("inquirer");
 
+// grabs api keys for spotify
 var spotify = new Spotify(keys.spotify);
 
+// divider for text log
 var divider = "\n====================================================\n";
 
-// var mainMenu = function() {
+
+// main menu prompt with switch case
+
+function mainMenu() {
+
 
 inquirer.prompt([
     {
         type: "list",
         message: "What would you like to do?",
-        choices: ["concert-this", "spotify-this", "movie-this", "do it"],
+        choices: ["concert-this", "spotify-this", "movie-this", "just do it", "exit"],
         name: "action"
     }
 ]).then(answer => {
@@ -31,7 +37,7 @@ switch(answer.action) {
             }
         ]).then(answer => {
             concertThis(answer.band);
-                //  mainMenu();
+          
         });
         break;
     case "spotify-this":
@@ -42,7 +48,7 @@ switch(answer.action) {
                 default: "The Sign",
             }
         ]).then(answer => {
-            return spotifyThis(answer.song);
+            spotifyThis(answer.song);
         });
         break;
     case "movie-this":
@@ -54,21 +60,22 @@ switch(answer.action) {
             }
         ]).then(answer => {
                  movieThis(answer.movie);
-                // mainMenu();
             
         });
         break;
-    case "do it":
-        inquirer.prompt
+    case "just do it":
         return justDoIt(); 
+
+    case "exit":
+        return;
 }
 });
-// };
+};
 
 
-// mainMenu();
 
 
+// function to look up concerts
 
 function concertThis(band) {
     var bandspot = "https://rest.bandsintown.com/artists/" + band + "/events?app_id=codingbootcamp";
@@ -79,13 +86,21 @@ function concertThis(band) {
                 let venue = item.venue.name;
                 let location = item.venue.city + ", " + item.venue.country;
                 let date = moment(item.datetime).format("MM/DD/YYYY");
-                console.log(`Venue Name: ${venue}\nLocation: ${location}\nDate: ${date}\n`);
+
+                // logging to the prompt
+
+                console.log(`\nVenue Name: ${venue}\nLocation: ${location}\nDate: ${date}\n`);
+
+                // logging to the text file
 
                 fs.appendFile("log.txt", venue +"\n"+ location +"\n"+ date +"\n" + divider, function(err) {
                     if(err) throw err;
                 })
             }) 
-        })};
+        }); 
+    };
+
+// function to search spotify
 
 function spotifyThis(song) {
 
@@ -96,7 +111,8 @@ function spotifyThis(song) {
       
         data.tracks.items.forEach(function(track) {
          
-      
+    //   create one variable of song info to make it easier to log
+
           var songData = [
             "\nSong Name: " + track.name,
             "Album: " + track.album.name,
@@ -104,17 +120,21 @@ function spotifyThis(song) {
             "Spotify Link: " + track.external_urls.spotify,
             ].join("\n\n");
         
-      
-          console.log(songData);
-      
+    //   logs to the cmd prompt
+
+          console.log(`${songData}\n`);
+
+        //   logs to the text file
+
           fs.appendFile("log.txt", songData + divider, function(err) {
             if(err) throw err;
         })
       });
       });
       
-
 };
+
+// function to look up movie
 
 function movieThis(movie) {
     var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
@@ -122,6 +142,9 @@ function movieThis(movie) {
     axios.get(queryUrl).then(
         function(response) {
             var film = response.data;
+
+
+            // storing film info for easy retrieval
 
             var filmData = [
                 "\nTitle: " + film.Title,
@@ -134,12 +157,15 @@ function movieThis(movie) {
                 "Rotten Tomatoes Rating: " + film.Ratings[1].Value,
             ].join("\n\n");
 
+            // log to prompt
+
             console.log(filmData);
             
+            // log to the text file
+
             fs.appendFile("log.txt", filmData + divider, function(err) {
                 if(err) throw err;
             });
-
         })
         .catch(function(error) {
             if(error.response) {
@@ -158,25 +184,48 @@ function movieThis(movie) {
         });
 };
 
-function justDoIt() {
+// function to read text file and take commands from it
 
+function justDoIt() {
+    fs.readFile("random.txt", "utf8", function(error, data) {
+
+        if (error) {
+            return console.log(error);
+          };
+
+        //   split string into array 
+
+          var justDidIt = data.split(",");
+
+          var action = justDidIt[0];
+          var query = justDidIt[1];
+
+        //   if band is more than one word make it search friendly
+        
+          var concert = justDidIt[1].split(" ").join("%20").slice(3); 
+
+
+          switch (action) {
+              case "spotify-this-song":
+                  spotifyThis(query);
+                  break;
+
+              case "concert-this": 
+                  concertThis(concert);
+                  break;
+              
+              case "movie-this":
+                  movieThis(query);
+                  break;
+
+            default:
+                spotifyThis(action); 
+                return;
+          }
+    
+    });
 };
 
-    
+    mainMenu();
 
 
-
-
-
-    
-
-
-
-
-
-// look into using this to run multiple prompts like reset and main menu
-//    function doSomething(answers){
-//     // Do whateva you want!
-//   }
-//   var questions = [];
-//   inquirer.prompt(questions, doSomething);
