@@ -4,7 +4,7 @@
 
 Notes For Running the App
 ==============================
-Liri can be run from a CLI app using node. In order to successfully utilize Liri, you will need to get a spotify id and secret number and save them in a .env file using the following format:
+Liri can be run from a CLI app using node. In order to successfully utilize Liri, you will need to get a spotify id and secret number and save them in an .env file using the following format:
 
 SPOTIFY_ID=your-spotify-id
 SPOTIFY_SECRET=your-spotify-secret
